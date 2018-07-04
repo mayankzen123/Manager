@@ -1,15 +1,9 @@
 import React, {Component} from 'react';
-import {Text, StyleSheet, View, TextInput, Button, TouchableOpacity} from "react-native";
+import {Text, StyleSheet, View, TextInput, ActivityIndicator, TouchableOpacity} from "react-native";
+import {emailChanged, loginUser, passwordChanged} from "../Action";
+import {connect} from 'react-redux';
 
 class LoginForm extends Component {
-    constructor() {
-        super();
-        this.setState({
-            email: "",
-            password: ""
-        });
-    }
-
     render() {
         return (
             <View style={styles.container}>
@@ -24,7 +18,8 @@ class LoginForm extends Component {
                         keyboardType={"email-address"}
                         autoCapitalize='none'
                         placeholder="Enter email"
-                        onChangeText={email => this.emailChanged(email)}
+                        onChangeText={email => this.onEmailChange(email)}
+                        value={this.props.email}
                         multiline={false}
                     >
                     </TextInput>
@@ -41,26 +36,71 @@ class LoginForm extends Component {
                         autoCapitalize='none'
                         placeholder="Enter password"
                         secureTextEntry={true}
-                        onChangeText={password => this.setState({password})}
+                        onChangeText={password => this.onPasswordChange(password)}
+                        value={this.props.password}
                         multiline={false}
                     >
                     </TextInput>
                 </View>
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => {
-                        console.log(this.props);
-                    }}>
-                    <Text style={styles.label}>
-                        Login
-                    </Text>
-                </TouchableOpacity>
+                {this.isLoading()}
+                {this.displayError()}
+                {this.displaySuccess()}
             </View>
         )
     }
 
-    emailChanged = (email) => {
+    //Dispatching new text to reducer
+    onEmailChange = (email) => {
+        this.props.emailChanged(email)
+    }
 
+    onPasswordChange = (password) => {
+        this.props.passwordChanged(password)
+    }
+
+    onLoginPressed = () => {
+        const {email, password} = this.props
+        this.props.loginUser({email, password})
+    }
+
+    isLoading = () => {
+        if (this.props.loading) {
+            return <ActivityIndicator size="large"/>
+        } else {
+            return (
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => {
+                        this.onLoginPressed()
+                    }}>
+                    <Text style={styles.label}>
+                        Login
+                    </Text>
+                </TouchableOpacity>)
+        }
+    };
+    displayError = () => {
+        if (this.props.error) {
+            return (
+                <View style={{backgroundColor: 'red'}}>
+                    <Text style={{color: 'white', alignSelf: 'center', fontSize: 15}}>
+                        {this.props.error}
+                    </Text>
+                </View>
+            )
+        }
+    }
+
+    displaySuccess = () => {
+        if (this.props.user) {
+            return (
+                <View style={{backgroundColor: 'green'}}>
+                    <Text style={{color: 'white', alignSelf: 'center', fontSize: 15}}>
+                        Logged In Success!! {this.props.user.user.email}
+                    </Text>
+                </View>
+            )
+        }
     }
 }
 
@@ -91,4 +131,17 @@ const styles = StyleSheet.create({
     }
 });
 
-export default LoginForm;
+//Mapping State to Props this props will be used wherever required
+const mapStateToProps = (state) => {
+    //Mapping state to Reducer and then to state name
+    //Here AuthReducer and email state
+    var auth = state.auth;
+    return {
+        email: auth.email,
+        password: auth.password,
+        error: auth.error,
+        user: auth.user,
+        loading: auth.loading
+    }
+};
+export default connect(mapStateToProps, {emailChanged, passwordChanged, loginUser})(LoginForm);
