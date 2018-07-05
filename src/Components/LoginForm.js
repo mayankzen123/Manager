@@ -79,6 +79,7 @@ class LoginForm extends Component {
                 </TouchableOpacity>)
         }
     };
+
     displayError = () => {
         if (this.props.error) {
             return (
