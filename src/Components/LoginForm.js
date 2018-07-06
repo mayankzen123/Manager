@@ -7,7 +7,7 @@ class LoginForm extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <View style={styles.textContainer}>
+                <View style={styles.childContainer}>
                     <Text style={styles.label}>
                         Email
                     </Text>
@@ -24,7 +24,7 @@ class LoginForm extends Component {
                     >
                     </TextInput>
                 </View>
-                <View style={styles.textContainer}>
+                <View style={styles.childContainer}>
                     <Text style={styles.label}>
                         Password
                     </Text>
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         backgroundColor: '#fff',
-    }, textContainer: {
+    }, childContainer: {
         marginLeft: 10,
         marginRight: 10,
         marginBottom: 10
